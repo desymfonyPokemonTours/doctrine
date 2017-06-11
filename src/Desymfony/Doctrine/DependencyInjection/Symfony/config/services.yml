@@ -1,0 +1,46 @@
+services:
+  ### ENTITY MANAGER SERVICES ###
+  desymfony.doctrine.entity_manager_factory:
+    class: Desymfony\Doctrine\EntityManager\DesymfonyEntityManagerFactory
+    arguments:
+      - '@desymfony.doctrine.entity_manager_static_proxy'
+      - '@desymfony.doctrine.connection'
+      - '@desymfony.doctrine.orm.tools.setup_static_proxy'
+      - '%desymfony.doctrine.orm.mapping%'
+    public: false
+
+  desymfony.doctrine.entity_manager_static_proxy:
+    class: Desymfony\Doctrine\EntityManager\EntityManagerStaticProxy
+    public: false
+
+  desymfony.doctrine.orm.tools.setup_static_proxy:
+    class: Desymfony\Doctrine\ORM\Tools\SetupStaticProxy
+    public: false
+
+  desymfony.doctrine.connection:
+    class: Desymfony\Doctrine\Connection\DesymfonyConnection
+    arguments:
+      - '@desymfony.doctrine.driver_manager'
+      - '%desymfony.doctrine.orm.dbal%'
+    public: false
+
+  desymfony.doctrine.driver_manager:
+    class: Desymfony\Doctrine\Connection\DesymfonyDriverManager
+    public: false
+
+  desymfony.doctrine.entity_manager:
+    class: Desymfony\Doctrine\EntityManager\DesymfonyEntityManagerDecorator
+    factory: ['@desymfony.doctrine.entity_manager_factory', create]
+    arguments: ['%is_debug_mode%']
+
+  desymfony.doctrine.entity_repository:
+    class: Desymfony\Doctrine\EntityRepository\DesymfonyEntityRepository
+    abstract: true
+    arguments:
+      - '@desymfony.doctrine.entity_manager'
+      - '@desymfony.doctrine.class_metadata_factory'
+
+  desymfony.doctrine.class_metadata_factory:
+    class: Doctrine\ORM\Mapping\ClassMetadataFactory
+    public: false
+
